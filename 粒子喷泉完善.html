@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>粒子喷泉完善</title>
+    <style>
+        *{margin:0;padding:0;}
+        body{overflow: hidden}
+        #canvas{background:#000;}
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+</body>
+<script>
+    (function(win,doc,canvas) {
+        var ctx = doc.getElementById(canvas).getContext('2d'),
+            screenWidth = win.innerWidth,
+            screenHeight = win.innerHeight;
+        ctx.canvas.width = screenWidth;
+        ctx.canvas.height = screenHeight;
+        //定义粒子基本数据
+        var dot={
+            r:4,
+
+            dataArr:[],
+
+            num:300
+        }
+        //定义开始位置
+        var initPosition={
+            x:ctx.canvas.width/2,
+            y:50
+        }
+        function dots(){
+            this.x=initPosition.x;
+            this.y=initPosition.y;
+            this.mx=Math.random()*4-2;
+            this.my=Math.random()*2-4;
+            this.gradient=0.1;
+            this.color=1;
+            this.r=5;
+        }
+        dots.prototype.draw=function(){
+
+            ctx.save();
+            ctx.beginPath();
+            ctx.fillStyle = 'hsl('+this.color+',100%,50%)'
+            ctx.arc(this.x,this.y,this.r,0,360*Math.PI*180);
+            ctx.fill();
+            ctx.closePath();
+            ctx.restore();
+        }
+        //创建粒子
+        function createArc(){
+            dot.dataArr.push(new dots);
+        }
+        function moveArc(){
+
+            for(var i=0;i<dot.dataArr.length;i++){
+                dot.dataArr[i].my+=dot.dataArr[i].gradient;
+                dot.dataArr[i].x+=dot.dataArr[i].mx;
+                dot.dataArr[i].y+=dot.dataArr[i].my;
+                dot.dataArr[i].color+=2;
+            }
+          //  console.log(1)
+        }
+        function drawArc(){
+            createArc();
+            for(var i=0;i<dot.dataArr.length;i++){
+                dot.dataArr[i].draw();
+            }
+        }
+        function moveEND(){
+            ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
+            moveArc();
+            drawArc();
+            if(dot.dataArr.length>dot.num){
+                dot.dataArr.shift();
+            }
+           // console.log(dot.dataArr.length)
+            requestAnimationFrame(moveEND);
+        }
+        ctx.canvas.addEventListener('mousemove',function(e){
+            initPosition.x=e.pageX;
+            initPosition.y=e.pageY;
+        });
+        ctx.canvas.addEventListener('mouseleave',function(e){
+            initPosition.x=ctx.canvas.width/2;
+            initPosition.y=50;
+        });
+        //drawArc();
+        //console.log(dot.dataArr.length)   1
+       requestAnimationFrame(moveEND);
+    })(window,document,'canvas');
+</script>
+</html>

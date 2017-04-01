@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>星空连接2</title>
+    <style>
+        *{margin:0;padding:0;}
+        body{overflow: hidden;}
+        canvas{background:#020215;}
+
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+</body>
+<script>
+    window.onload=function(){
+        var ctx=document.getElementById('canvas').getContext('2d'),
+            screenWidth=window.innerWidth,
+            screenHeight=window.innerHeight;
+        ctx.canvas.width=screenWidth;
+        ctx.canvas.height=screenHeight;
+        window.onresize=function(){
+            screenWidth=window.innerWidth,
+                screenHeight=window.innerHeight;
+            ctx.canvas.width=screenWidth;
+            ctx.canvas.height=screenHeight;
+        }
+        var mousePosition={
+            x:ctx.canvas.width>>1,
+            y:ctx.canvas.height>>1
+        }
+        var dot={
+            r:6,
+            Linenum:50,
+            ballTotalNum:300,
+            ballDataArr:[],
+            speed:2,
+            circle:100,
+            maxR:30
+        }
+        function init(){
+            this.r=Math.floor(Math.random()*dot.r);
+            this.x=Math.floor(this.r+Math.random()*(ctx.canvas.width-3*this.r));
+            this.y=Math.floor(this.r+Math.random()*(ctx.canvas.height-3*this.r));
+            //this.color_h=Math.floor(Math.random()*255);
+            this.color_a=Math.random().toFixed(2);
+            this.color_r=Math.floor(Math.random()*255);
+            this.color_g=Math.floor(Math.random()*255);
+            this.color_b=Math.floor(Math.random()*255);
+            this.mx=(Math.random()-0.5)*dot.speed;
+            this.my=(Math.random()-0.5)*dot.speed;;
+        }
+        init.prototype.createStart=function(){
+            ctx.beginPath();
+            ctx.save()
+            ctx.fillStyle='rgba('+this.color_r+','+this.color_g+','+this.color_b+','+this.color_a+')';
+            ctx.arc(this.x,this.y,this.r,0,2*Math.PI);
+            ctx.fill();
+            ctx.restore();
+            ctx.closePath();
+        }
+        //创建所有的球体
+        function createTotalBall(){
+            for(var i=0;i<dot.ballTotalNum;i++){
+                dot.ballDataArr.push(new init());
+            }
+        }
+        //画出所有的球体
+
+        function drawTotalBall(){
+
+            for(var i=0;i<dot.ballDataArr.length;i++){
+                dot.ballDataArr[i].createStart();
+            }
+            ballDrawLine();
+
+        }
+
+        function ballAnimate(){
+            for(var i=0;i<dot.ballDataArr.length;i++){
+                if(dot.ballDataArr[i].x<=0 ||dot.ballDataArr[i].x>=ctx.canvas.width){
+                    dot.ballDataArr[i].mx=-dot.ballDataArr[i].mx;
+                }
+                if(dot.ballDataArr[i].y<=0 ||dot.ballDataArr[i].y>=ctx.canvas.height){
+                    dot.ballDataArr[i].my=-dot.ballDataArr[i].my;
+                }
+                dot.ballDataArr[i].x+=dot.ballDataArr[i].mx;
+                dot.ballDataArr[i].y+=dot.ballDataArr[i].my;
+            }
+            //
+        }
+        //粒子连线，判断x，y距离
+        function ballDrawLine(){
+            function getColor(dot1,dot2){
+                var rr=Math.floor((dot1.color_r+dot2.color_r)/2);
+                var gg=Math.floor((dot1.color_g+dot2.color_g)/2);
+                var bb=Math.floor((dot1.color_b+dot2.color_b)/2);
+                //var aa=(dot1.color_a+dot2.color_a)/2);
+                console.log('rgba('+rr+','+gg+','+bb+',1)')
+                return 'rgba('+rr+','+gg+','+bb+',0.3)';
+            }
+            for(var m=0;m<dot.ballDataArr.length;m++){
+                for(var n=dot.ballDataArr.length-1;n>0;n--){
+                    if(Math.abs(dot.ballDataArr[m].x-dot.ballDataArr[n].x)<=dot.Linenum && Math.abs(dot.ballDataArr[m].y-dot.ballDataArr[n].y)<=dot.Linenum){
+                        ctx.beginPath();
+                        ctx.save();
+                        ctx.strokeStyle=getColor(dot.ballDataArr[m],dot.ballDataArr[n]);
+                        ctx.moveTo(dot.ballDataArr[m].x,dot.ballDataArr[m].y);
+                        ctx.lineTo(dot.ballDataArr[n].x,dot.ballDataArr[n].y);
+                        ctx.stroke();
+                        ctx.restore();
+                        ctx.closePath();
+                    }
+                }
+            }
+        }
+        ctx.canvas.onmousemove=function(e){
+            var e=e || window.event;
+
+            amplification(e.pageX,e.pageY);
+            //requestAnimationFrame(main);
+
+        }
+        //放大
+        function amplification(moveX,moveY){
+            for(var z=0;z<dot.ballDataArr.length;z++){
+                if(Math.abs(moveX-dot.ballDataArr[z].x)<=dot.circle && Math.abs(moveY-dot.ballDataArr[z].y)<=dot.circle){
+                    if(dot.ballDataArr[z].r>dot.maxR){
+                        //
+                        //setTimeout(function(){
+                            dot.ballDataArr[z].r-=10;
+                       // },100)
+                    }else{
+                    dot.ballDataArr[z].r=dot.ballDataArr[z].r*2;}
+                   // dot.ballDataArr[z].y=dot.ballDataArr[z].y*5;
+                }
+            }
+        }
+        createTotalBall();
+        function main(){
+            ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height)
+            drawTotalBall();
+            ballAnimate();
+
+            requestAnimationFrame(main);
+        }
+        requestAnimationFrame(main);
+
+    }
+</script>
+</html>

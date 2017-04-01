@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>爱心第二步</title>
+    <style>
+        *{margin:0;padding:0;}
+        body{overflow: hidden;background: #fff;}
+        canvas{background: #000;}
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+</body>
+<script>
+    (function(win,doc,canvas){
+        var ctx=doc.getElementById(canvas).getContext('2d'),
+                screenWidth=win.innerWidth,
+                screenHeight=win.innerHeight,
+                dot={
+                    /**
+                     * 半径，初始弧度，每次增加的弧度，线段的长度，判断是否到达目的的，心形坐标数组，心形坐标个数
+                     */
+                    r:10,
+                    initRadius:Math.PI,
+                    initRadiusAdder:Math.PI/360*2,
+                    line:20,
+                    isHear:false,
+                    num:360,
+                    i:0,
+                    dataArr:[],
+                    totleTime:100,
+                    t:0,
+                    startX:0,
+                    startY:0,
+                    endX:0,
+                    endY:0
+                },
+                initPosition={
+                    x:screenWidth/2,
+                    y:screenHeight
+                }
+        ctx.canvas.width=screenWidth;
+        ctx.canvas.height=screenHeight;
+        ctx.translate(screenWidth/2,screenHeight/2);
+        //首先通过弧度获取心形图案的每个坐标
+        function dots(i){
+            dot.initRadius+=dot.initRadiusAdder;
+            this.radius=dot.initRadius
+        }
+        dots.prototype={
+            /**
+             * @returns {number} 返回坐标X
+             */
+            getX:function(){ return 100 + dot.r * (16 * Math.pow(Math.sin(this.radius), 3));},
+            /**
+             * @returns {number} 返回坐标X
+             */
+            getY:function(){return 50 - dot.r * (13 * Math.cos(this.radius) - 5 * Math.cos(2 * this.radius) - 2 * Math.cos(3 * this.radius) - Math.cos(4 * this.radius));},
+
+            drawRandomLine:function(){
+
+                line=dot.line;
+                var jiaodu=Math.random()*360;
+                ctx.beginPath();
+                ctx.moveTo(this.getX(),this.getY());
+                r=Math.round(Math.random()*255);
+                g=Math.round(Math.random()*255);
+                b=Math.round(Math.random()*255);
+                a=Math.random();
+                ctx.strokeStyle='rgba('+r+','+g+','+b+','+a+')';
+                ctx.lineTo(this.getX()+line*Math.cos(jiaodu),this.getY()+line*Math.sin(jiaodu));
+                ctx.stroke();
+                ctx.closePath();
+                dot.isHear=false;
+               // sleep(1000);
+
+            }
+
+        };
+
+        function  createLine(){
+            drawMyHeart();
+            for(var i=0;i<dot.dataArr.length;i++){
+                var totalLang=Math.sqrt((dot.dataArr[i].getX()-initPosition.x)*(dot.dataArr[i].getX()-initPosition.x)+(dot.dataArr[i].getY()-initPosition.y)*(dot.dataArr[i].getY()-initPosition.y))
+                //console.log(totalLang)
+                var v=totalLang/dot.totleTime;
+//                console.log(v)
+                //var cos=
+                drawInitLine(dot.startX,dot.startY,dot.endX,dot.endY);
+            }
+        }
+        //t tile v 速度
+        function drawInitLine(startX,startY,endX,endY){
+
+            ctx.beginPath();
+            ctx.moveTo(startX,startY);
+            ctx.lineTo(endX,endY);
+            ctx.stroke();
+            ctx.closePath();
+            
+        }
+        dot.startX=initPosition.x;
+        dot.startY=initPosition.y;
+        createLine()
+        function drawMyHeart(){
+
+            for(var i=0;i<dot.num;i++){
+                //dot.isHear=true;
+
+                dot.dataArr.push(new dots(i));
+               // new dots(i).drawRandomLine();
+                // dot.isHear=false;
+                // sleep(111)
+
+            }
+//            dot.i++;
+//            console.log(dot.i)
+//            if(dot.i>=500){
+//                cancelAnimationFrame();
+//            }
+          // requestAnimationFrame(drawMyHeart);
+        }
+       // drawMyHeart()
+        //requestAnimationFrame(drawMyHeart);
+
+    })(window,document,'canvas');
+</script>
+</html>
